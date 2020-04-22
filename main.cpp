@@ -19,7 +19,6 @@
 using namespace std;
 
 static bool initSingletons( int _argc, char ** _argv, char ** _env ){
-
     // cmd line arguments
     ArgsParser::SInitSettings settings;
     settings.commandConvertor = & UNIFIED_COMMAND_CONVERTOR;
@@ -61,7 +60,6 @@ static bool initSingletons( int _argc, char ** _argv, char ** _env ){
 }
 
 static void parseResponse( const std::string & _msg ){
-
     // parse base part
     boost::property_tree::ptree parsedRepsonseJson;
     try{
@@ -80,7 +78,6 @@ static void parseResponse( const std::string & _msg ){
 }
 
 static bool executeShellCommand(){
-
     if( ARGS_PARSER.isKeyExist(EPlayerArguments::SHELL_CMD_START_VIDEO_SERVER) ){
 
         // deamonize

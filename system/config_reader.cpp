@@ -69,10 +69,9 @@ bool ConfigReader::parse( const std::string & _content ){
     m_parameters.HLS_PLAYLIST_NAME = setParameterNew<std::string>( HLS, "playlist_name", string("list.m3u8") );
     m_parameters.HLS_MAX_FILE_COUNT = setParameterNew<int32_t>( HLS, "max_file_count", 500 );
 
-    // TODO: via boost
-    DIR * dir = opendir( m_parameters.HLS_WEBSERVER_DIR_ROOT.c_str() );
-    if( ! dir ){
-        PRELOG_ERR << ::PRINT_HEADER << " cannot open webserver dir: " << m_parameters.HLS_WEBSERVER_DIR_ROOT << endl;
+
+    if( ! common_utils::isDirectory(m_parameters.HLS_WEBSERVER_DIR_ROOT) ){
+        PRELOG_ERR << ::PRINT_HEADER << " cannot open webserver dir [" << m_parameters.HLS_WEBSERVER_DIR_ROOT << "]" << endl;
         return false;
     }
 

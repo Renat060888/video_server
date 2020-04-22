@@ -9,6 +9,7 @@
 #include "analyzer.h"
 
 using namespace std;
+using namespace common_types;
 
 // NOTE: must be equal to global variables in top of [plugin_interface/ianalytic_plugin.h]
 constexpr const char * GLIB_SIGNAL_NAME_EVENT_MESSAGE = "event-message";

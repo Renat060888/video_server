@@ -1,6 +1,8 @@
 #ifndef COMMON_TYPES_H
 #define COMMON_TYPES_H
 
+#include <functional>
+
 #include <microservice_common/common/ms_common_types.h>
 #include <microservice_common/communication/network_interface.h>
 
@@ -159,6 +161,61 @@ struct SEventFromStorage /*: SEvent*/ {
     std::vector<SDetectedObject> objects;
 };
 
+struct SPluginParameter {
+    SPluginParameter(){}
+    SPluginParameter( std::string _key, std::string _value )
+        : key(_key)
+        , value(_value)
+    {}
+    std::string key;
+    std::string value;
+
+    bool operator ==( const SPluginParameter & _rhs ) const {
+        return (key == _rhs.key && value == _rhs.value);
+    }
+};
+
+struct SPluginMetadata {
+    std::string source;
+    std::string GStreamerElementName;
+    std::string pluginStaticName;
+    std::string type;
+    std::vector< SPluginParameter > params;
+
+    bool operator ==( const SPluginMetadata & _rhs ) const {
+        return ( source == _rhs.source &&
+                 GStreamerElementName == _rhs.GStreamerElementName &&
+                 pluginStaticName == _rhs.pluginStaticName &&
+                 type == _rhs.type &&
+                 params == _rhs.params
+               );
+    }
+};
+
+struct SProcessedSensor {
+    SProcessedSensor()
+        : id(0)
+        , lastSession(0)
+        , updateStepMillisec( 1000 / 24 )
+    {}
+    TSensorId id;
+    TSessionNum lastSession;
+    int64_t updateStepMillisec;
+};
+
+struct SVideoResolution {
+    SVideoResolution()
+        : width(0)
+        , height(0)
+    {}
+    SVideoResolution( int _width, int _height )
+        : width(_width)
+        , height(_height)
+    {}
+    int width;
+    int height;
+};
+
 
 // ---------------------------------------------------------------------------
 // exchange ADT ( component <-> store, component <-> network, etc... )
@@ -302,6 +359,20 @@ public:
     virtual ~IEventInternalVisitor(){}
 
     virtual void visit( const SAnalyzedObjectEvent * _record ) = 0;
+
+private:
+
+};
+
+class IMetadataVisitor {
+public:
+    virtual ~IMetadataVisitor(){}
+
+    virtual void visit( const SHlsMetadata * _event ) = 0;
+    virtual void visit( const SBookmark * _event ) = 0;
+    virtual void visit( const SOnceMoreMetadata * _event ) = 0;
+
+
 
 private:
 
@@ -485,12 +556,18 @@ struct SIncomingCommandServices : SIncomingCommandGlobalServices {
         , communicationGateway(nullptr)
     {}
 
+    // TODO: make abstract services instead explicit facades
+
+    // for incoming commands
     SystemEnvironmentFacadeVS * systemEnvironment;
     SourceManagerFacade * sourceManager;
     StorageEngineFacade * storageEngine;
     AnalyticManagerFacade * analyticManager;
     CommunicationGatewayFacadeVS * communicationGateway;
     std::function<void()> signalShutdownServer;
+
+    // for outgoing commands
+    PNetworkClient networkClient;
 };
 
 }

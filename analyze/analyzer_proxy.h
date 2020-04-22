@@ -4,7 +4,7 @@
 #include <map>
 
 #include "common/common_types.h"
-#include "../common/common_types_with_plugins.h"
+#include "common/common_types_with_plugins.h"
 
 // interface
 class IAnalyzer
@@ -29,7 +29,7 @@ public:
         std::string processingId;
         std::string processingName;
         std::string sourceUrl;
-        std::vector<SPluginMetadata> plugins;
+        std::vector<common_types::SPluginMetadata> plugins;
         // this data sets to plugin via pointer
         common_types_with_plugins::SPointerContainer pointerContainer;
 

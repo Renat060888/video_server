@@ -16,10 +16,9 @@ public:
 
     }
 
+
 private:
-    Json::Value getAnalyzeEvents();
-    Json::Value getLoadStatus();
-    Json::Value getPlayerStatus();
+
 
 };
 using PCommandPing = std::shared_ptr<CommandPing>;

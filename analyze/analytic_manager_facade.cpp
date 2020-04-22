@@ -13,6 +13,7 @@
 #include "event_retranslator.h"
 
 using namespace std;
+using namespace common_types;
 
 //#define REMOTE_ANALYZER
 static constexpr const char * PRINT_HEADER = "AnalyticMgr:";
@@ -765,7 +766,7 @@ const std::map<std::string, SAnalyticEvent> & AnalyticManagerFacade::getLastAnal
 
 
 // TODO: temp
-
+#ifdef OBJREPR_LIBRARY_EXIST
 bool isThisGroupOrParentGroupHasThisNameRecursive(objrepr::ClassgroupPtr groupPtr, const string nameOfGroup )
 {
     bool resVal = false;
@@ -780,9 +781,10 @@ bool isThisGroupOrParentGroupHasThisNameRecursive(objrepr::ClassgroupPtr groupPt
 
     return resVal;
 }
+#endif
 
 std::map<uint64_t, SAnalyzeProfile> AnalyticManagerFacade::getSensorProfiles( TSensorId _sensorId ){
-
+#ifdef OBJREPR_LIBRARY_EXIST
     objrepr::GlobalDataManager * globalManager = objrepr::RepresentationServer::instance()->globalManager();
     objrepr::SpatialObjectManager * objManager = objrepr::RepresentationServer::instance()->objectManager();
 
@@ -862,6 +864,7 @@ std::map<uint64_t, SAnalyzeProfile> AnalyticManagerFacade::getSensorProfiles( TS
     }
 
     return profiles;
+#endif
 }
 
 IObjectsPlayer * AnalyticManagerFacade::getPlayingService(){
@@ -888,7 +891,7 @@ struct ObjreprClassinfFindFunctor {
 };
 
 std::map<std::string, uint64_t> AnalyticManagerFacade::getDpfObjreprMapping( const std::vector<uint64_t> & _filterObjreprClassinfoId ){
-
+#ifdef OBJREPR_LIBRARY_EXIST
     std::map<std::string, uint64_t> out;
     objrepr::GlobalDataManager * globalManager = objrepr::RepresentationServer::instance()->globalManager();
 
@@ -928,6 +931,7 @@ std::map<std::string, uint64_t> AnalyticManagerFacade::getDpfObjreprMapping( con
     }
 
     return out;
+#endif
 }
 
 

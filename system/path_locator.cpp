@@ -1,5 +1,6 @@
 
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 #include <microservice_common/system/logger.h>
 
 #include "common/common_utils.h"

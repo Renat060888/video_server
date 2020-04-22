@@ -3,14 +3,27 @@
 #include <microservice_common/system/logger.h>
 #include <microservice_common/common/ms_common_utils.h>
 
-//#include "commands/cmd_user_ping.h"
-//#include "commands/cmd_user_register.h"
-//#include "commands/cmd_context_listen_start.h"
-//#include "commands/cmd_context_listen_stop.h"
+#include "commands/source/cmd_source_connect.h"
+#include "commands/source/cmd_source_disconnect.h"
+#include "commands/source/cmd_sources_get.h"
+#include "commands/service/cmd_shutdown_server.h"
+#include "commands/service/cmd_context_open.h"
+#include "commands/service/cmd_context_close.h"
+#include "commands/analyze/cmd_outgoing_analyze_event.h"
+#include "commands/analyze/cmd_analyze_start.h"
+#include "commands/analyze/cmd_analyze_stop.h"
+#include "commands/analyze/cmd_analyze_status.h"
+#include "commands/storage/cmd_archive_info.h"
+#include "commands/storage/cmd_download_video.h"
+#include "commands/storage/cmd_archive_start.h"
+#include "commands/storage/cmd_archive_stop.h"
+#include "commands/storage/cmd_archive_status.h"
+#include "commands/storage/cmd_video_bookmark.h"
 #include "common/common_vars.h"
 #include "command_factory.h"
 
 using namespace std;
+using namespace common_types;
 
 static constexpr const char * PRINT_HEADER = "CommandFactory:";
 
@@ -49,33 +62,31 @@ PCommand CommandFactory::createCommand( PEnvironmentRequest _request ){
     // service
     // -------------------------------------------------------------------------------------
     if( "service" == parsedJson.get<string>(common_vars::cmd::COMMAND_TYPE) ){
-//        if( "ping" == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
-//            PCommandUserPing cmd1 = std::make_shared<CommandUserPing>( & m_commandServices );
-//            cmd1->m_userId = parsedJson.get<string>(common_vars::cmd::USER_ID);
-//            cmd = cmd1;
-//        }
-//        else if( "register" == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
-//            PCommandUserRegister cmd1 = std::make_shared<CommandUserRegister>( & m_commandServices );
-//            cmd1->m_userIpStr = parsedJson.get<string>(common_vars::cmd::USER_IP);
-//            cmd1->m_userPid = parsedJson.get<common_types::TPid>(common_vars::cmd::USER_PID);
-//            cmd = cmd1;
-//        }
-//        else if( "context_listen_start" == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
-//            PCommandContextListenStart cmd1 = std::make_shared<CommandContextListenStart>( & m_commandServices );
-//            cmd1->m_contextName = parsedJson.get<string>(common_vars::cmd::CONTEXT_NAME);
-//            cmd1->m_missionName = parsedJson.get<string>(common_vars::cmd::MISSION_NAME);
-//            cmd = cmd1;
-//        }
-//        else if( "context_listen_stop" == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
-//            PCommandContextListenStop cmd1 = std::make_shared<CommandContextListenStop>( & m_commandServices );
-//            cmd1->m_contextName = parsedJson.get<string>(common_vars::cmd::CONTEXT_NAME);
-//            cmd = cmd1;
-//        }
-//        else{
-//            VS_LOG_WARN << PRINT_HEADER << " unknown command name [" << parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) << "]" << endl;
-//            sendFailToExternal( _request, "I don't know such command name of 'service' command type (-_-)" );
-//            return nullptr;
-//        }
+        if( common_vars::cmd::CMD_NAME_PING == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
+            PCommandPing cmd2 = m_poolOfPings.getInstance( & m_commandServices );
+            cmd = cmd2;
+        }
+        else if( common_vars::cmd::SHUTDOWN_SERVER == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
+            PCommandShutdownServer cmd2 = std::make_shared<CommandShutdownServer>( & m_commandServices );
+            cmd = cmd2;
+        }
+        else if( common_vars::cmd::CMD_NAME_CTX_OPEN == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
+            PCommandContextOpen cmd2 = std::make_shared<CommandContextOpen>( & m_commandServices );
+            cmd2->m_contextId = parsedJson.get<TContextId>("context_id");
+            cmd2->m_requestFullText = _request->getIncomingMessage();
+            cmd = cmd2;
+        }
+        else if( common_vars::cmd::CMD_NAME_CTX_CLOSE == parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) ){
+            PCommandContextClose cmd2 = std::make_shared<CommandContextClose>( & m_commandServices );
+            cmd = cmd2;
+        }
+        else{
+            VS_LOG_WARN << "unknown service command name [" << parsedJson.get<string>(common_vars::cmd::COMMAND_NAME) << "]"
+                        << " of msg [" << _request->getIncomingMessage() << "]"
+                        << endl;
+            sendFailToExternal( _request, "I don't know such command name of 'external service' command type (-_-)" );
+            return nullptr;
+        }
     }
     // -------------------------------------------------------------------------------------
     // datasource

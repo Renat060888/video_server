@@ -5,8 +5,7 @@
 #include <future>
 #include <map>
 
-#include <video_server_common/storage/database_manager_astra.h>
-
+#include "storage/database_manager.h"
 #include "analyzer_proxy.h"
 #include "common/common_types.h"
 #include "videocard_balancer.h"

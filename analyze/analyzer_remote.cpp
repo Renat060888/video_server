@@ -10,6 +10,7 @@
 #include "analyzer_remote.h"
 
 using namespace std;
+using namespace common_types;
 
 AnalyzerRemote::AnalyzerRemote( IInternalCommunication * _internalCommunicationService, const std::string & _clientName )
     : IProcessObserver(1)

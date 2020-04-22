@@ -2,8 +2,10 @@
 #define COMMAND_FACTORY_H
 
 #include <microservice_common/communication/i_command_factory.h>
+#include <microservice_common/system/object_pool.h>
 
 #include "common/common_types.h"
+#include "commands/service/cmd_ping.h"
 
 class CommandFactory : public ICommandFactory
 {
@@ -18,5 +20,6 @@ private:
 
     // service
     common_types::SIncomingCommandServices & m_commandServices;
+    ObjectPool<CommandPing , common_types::SIncomingCommandServices *> m_poolOfPings;
 };
 #endif // COMMAND_FACTORY_H

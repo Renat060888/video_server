@@ -6,7 +6,7 @@
 
 #include <microservice_common/system/system_monitor.h>
 
-#include "video_server_common/analyze/analyzer_proxy.h"
+#include "analyzer_proxy.h"
 
 class VideocardBalancer
 {
@@ -25,9 +25,9 @@ public:
             , dpfProcessorPtr(nullptr)
         {}
         unsigned int idx;
-        TProfileId profileId;
+        common_types::TProfileId profileId;
         void * dpfProcessorPtr;
-        std::map<TProcessingId, SVideoResolution> processingsWithResolution;
+        std::map<common_types::TProcessingId, common_types::SVideoResolution> processingsWithResolution;
     };
 
     VideocardBalancer();
@@ -35,21 +35,21 @@ public:
     bool init( SInitSettings _settings );
     const std::string & getLastError(){ return m_lastError; }
 
-    void getVideocard( TProcessingId _procId,
+    void getVideocard( common_types::TProcessingId _procId,
                        SVideoResolution _res,
                        TProfileId _profileId,
                        unsigned int & _videocardIdx,
                        void * & _dpfProcessorPtr );
-    void returnVideocard( TProcessingId _procId );
+    void returnVideocard( common_types::TProcessingId _procId );
 
 private:
-    void * getDpfProcessorPtr( TProfileId _profileId );
+    void * getDpfProcessorPtr( common_types::TProfileId _profileId );
 
     // data
     std::string m_lastError;
     SInitSettings m_settings;
-    std::unordered_multimap<TProfileId, SVideocard *> m_videocardsByProfileId;
-    std::map<TProcessingId, SVideocard *> m_videocardsByProcessingId;
+    std::unordered_multimap<common_types::TProfileId, SVideocard *> m_videocardsByProfileId;
+    std::map<common_types::TProcessingId, SVideocard *> m_videocardsByProcessingId;
 
     // service
 

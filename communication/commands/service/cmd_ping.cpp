@@ -25,7 +25,7 @@ bool CommandPing::exec(){
     Json::Value status;
     status["analyze_events"] = getAnalyzeEvents();
     status["load_status"] = getLoadStatus();
-    status["player_state"] = getPlayerStatus();
+    status["player_state"] = getPlayerStatus( m_services );
     status["current_ctx_id"] = OBJREPR_BUS.getCurrentContextId();
 
     // main message
@@ -38,7 +38,7 @@ bool CommandPing::exec(){
     return true;
 }
 
-Json::Value CommandPing::getAnalyzeEvents(){
+static Json::Value getAnalyzeEvents(){
 
     // collect events
     Json::Value analyzeEvents;
@@ -53,7 +53,7 @@ Json::Value CommandPing::getAnalyzeEvents(){
     return analyzeEvents;
 }
 
-Json::Value CommandPing::getLoadStatus(){
+static Json::Value getLoadStatus(){
 
     const SystemMonitor::STotalInfo total = SYSTEM_MONITOR.getTotalSnapshot();
     assert( (total.memory.ramTotalMb - total.memory.ramFreeMb) < total.memory.ramTotalMb );
@@ -88,13 +88,13 @@ Json::Value CommandPing::getLoadStatus(){
     return loadStatus;
 }
 
-Json::Value CommandPing::getPlayerStatus(){
+static Json::Value getPlayerStatus( common_types::SIncomingCommandGlobalServices * _services ){
 
     // TODO: binary code of player in "PlayerAgent" bin
 
     Json::Value playerStatus;
 
-    IObjectsPlayer * player = m_services->analyticManager->getPlayingService();
+    IObjectsPlayer * player = _services->analyticManager->getPlayingService();
     playerStatus["player_status"] = "INITED";
 
 #if 0

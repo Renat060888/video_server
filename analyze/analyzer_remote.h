@@ -6,12 +6,12 @@
 #include <microservice_common/system/process_launcher.h>
 
 #include "video_server_common/communication/protocols/internal_communication_analyzer.pb.h"
-#include "video_server_common/analyze/analyzer_proxy.h"
+#include "analyzer_proxy.h"
 
 class AnalyzerRemote : public IAnalyzer, public INetworkObserver, public IProcessObserver
 {
 public:
-    AnalyzerRemote( IInternalCommunication * _internalCommunicationService, const std::string & _clientName );
+    AnalyzerRemote( common_types::IInternalCommunication * _internalCommunicationService, const std::string & _clientName );
     ~AnalyzerRemote();
 
     bool start( SInitSettings _settings ) override;
@@ -48,11 +48,10 @@ private:
 
     // service
     std::mutex m_networkLock;
-    IInternalCommunication * m_internalCommunicationService;
+    common_types::IInternalCommunication * m_internalCommunicationService;
     PNetworkClient m_remoteAnalyzerCommunicator;
     video_server_protocol::ProtobufInternalCommunicateAnalyzer m_protobufAnalyzerOut;
     video_server_protocol::ProtobufInternalCommunicateAnalyzer m_protobufAnalyzerIn;
-    WriteAheadLogger m_WAL;
 };
 using PAnalyzerRemote = std::shared_ptr<AnalyzerRemote>;
 

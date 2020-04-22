@@ -15,8 +15,16 @@ QMAKE_CXXFLAGS += -Wno-unused-variable
 
 # TODO: add defines to logger, system monitor, restbed webserver, database, etc...
 DEFINES += \
-    SWITCH_LOGGER_ASTRA \
-    OBJREPR_LIBRARY_EXIST \
+    SWITCH_LOGGER_SIMPLE \
+#    SWITCH_LOGGER_ASTRA \
+#    OBJREPR_LIBRARY_EXIST \
+    CURRENT_VERSION \
+    SEPARATE_SINGLE_SOURCE \
+    REMOTE_PROCESSING \
+    SPLINES_DO_NOT_USE_GENERIC_CONTAINER \
+#    ENABLE_CONF_DETECTOR_SERVICE \
+#    DEBIAN_9 \
+#    ASTRA_15 \
 
 # NOTE: paths for dev environment ( all projects sources in one dir )
 INCLUDEPATH += \
@@ -48,6 +56,16 @@ SOURCES += \
     communication/command_factory.cpp \
     communication/communication_gateway_facade_vs.cpp \
     communication/unified_command_convertor_vs.cpp \
+    storage/archive_creator.cpp \
+    storage/archive_creator_proxy.cpp \
+    storage/archive_creator_remote.cpp \
+    storage/database_manager.cpp \
+    storage/objrepr_repository.cpp \
+    storage/video_assembler.cpp \
+    storage/video_recorder.cpp \
+    storage/visitor_event.cpp \
+    storage/visitor_internal_event.cpp \
+    storage/visitor_metadata.cpp \
     system/config_reader.cpp \
     system/args_parser.cpp \
     system/system_environment_facade_vs.cpp \
@@ -87,11 +105,22 @@ SOURCES += \
 
 HEADERS += \
     common/common_types.h \
+    common/common_types_with_plugins.h \
     common/common_vars.h \
     common/common_utils.h \
     communication/command_factory.h \
     communication/communication_gateway_facade_vs.h \
     communication/unified_command_convertor_vs.h \
+    storage/archive_creator.h \
+    storage/archive_creator_proxy.h \
+    storage/archive_creator_remote.h \
+    storage/database_manager.h \
+    storage/objrepr_repository.h \
+    storage/video_assembler.h \
+    storage/video_recorder.h \
+    storage/visitor_event.h \
+    storage/visitor_internal_event.h \
+    storage/visitor_metadata.h \
     system/config_reader.h \
     system/args_parser.h \
     system/system_environment_facade_vs.h \

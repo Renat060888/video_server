@@ -42,7 +42,7 @@ private:
 
     std::string definePipelineDescription( const SInitSettings & _settings );
     std::string createHeadOfLaunchString( const SInitSettings & _settings );
-    std::vector<std::string> getCustomPluginsLaunchString( const std::vector<SPluginMetadata> & _pluginsMetadata );
+    std::vector<std::string> getCustomPluginsLaunchString( const std::vector<common_types::SPluginMetadata> & _pluginsMetadata );
 
 
     // data
