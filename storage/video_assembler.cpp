@@ -147,7 +147,7 @@ bool VideoAssembler::run( uint64_t _objreprObjectId ){
 
         //
         PEnvironmentRequest request = m_settings.communicationWithVideoSource->getRequestInstance();
-        request->sendOutcomingMessage( msgToSend, true );
+        request->setOutcomingMessage( msgToSend );
         return true;
     }
     else{

@@ -7,7 +7,6 @@
 
 class CommunicationGatewayFacadeVS : public CommunicationGatewayFacade
                                    , public common_types::IInternalCommunication
-                                   , public common_types::IExternalCommunication
 {
 public:
     struct SInitSettings : CommunicationGatewayFacade::SInitSettings {
@@ -20,7 +19,6 @@ public:
     bool init( const SInitSettings & _settings );
 
     // outcoming commands ( for internal sub-systems )
-    common_types::IExternalCommunication * serviceForExternalCommunication();
     common_types::IInternalCommunication * serviceForInternalCommunication();
 
     // outcoming commands ( for external clients )

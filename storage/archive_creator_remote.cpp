@@ -144,7 +144,7 @@ bool ArchiveCreatorRemote::getArchiveSessionInfo( int64_t & _startRecordTimeMill
 
     const string msgToSend = VideoReceiverProtocol::singleton().createSimpleCommand( CommandType::CT_GET_ARCHIVE_INFO );
     PEnvironmentRequest request = m_settings.communicationWithVideoSource->getRequestInstance();
-    request->sendOutcomingMessage( msgToSend, true );
+    request->setOutcomingMessage( msgToSend );
 
     // TODO: wait with timeout ( for the safety )
 

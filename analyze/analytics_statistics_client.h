@@ -16,7 +16,7 @@ public:
 
     bool init( SInitSettings _settings );
 
-    void statEvent( const SEvent & _event );
+    void statEvent( const common_types::SEvent & _event );
 
 private:    
     // data

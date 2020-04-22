@@ -3,15 +3,17 @@
 
 #include <microservice_common/system/a_args_parser.h>
 
-enum class EPlayerArguments {
+enum class EVideoServerArguments {
     SHELL_CMD_START_VIDEO_SERVER,
     SHELL_CMD_TO_VIDEO_SERVER,
     AS_DAEMON,
     MAIN_CONFIG_PATH,
+    THIS_PROCESS_ROLE,
+    CHILD_PROCESS,
     UNDEFINED
 };
 
-class ArgsParser : public AArgsParser<EPlayerArguments>
+class ArgsParser : public AArgsParser<EVideoServerArguments>
 {
 public:
     static constexpr const char * DUMMY_VAL = "dummy_val";

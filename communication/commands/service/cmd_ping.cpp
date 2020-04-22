@@ -19,25 +19,6 @@ CommandPing::CommandPing( SIncomingCommandServices * _services ) :
 
 }
 
-bool CommandPing::exec(){
-
-    // status
-    Json::Value status;
-    status["analyze_events"] = getAnalyzeEvents();
-    status["load_status"] = getLoadStatus();
-    status["player_state"] = getPlayerStatus( m_services );
-    status["current_ctx_id"] = OBJREPR_BUS.getCurrentContextId();
-
-    // main message
-    Json::Value response;
-    response["message"] = "pong";
-    response["status"] = status;
-
-    // send
-    sendResponse( response, true );
-    return true;
-}
-
 static Json::Value getAnalyzeEvents(){
 
     // collect events
@@ -88,7 +69,7 @@ static Json::Value getLoadStatus(){
     return loadStatus;
 }
 
-static Json::Value getPlayerStatus( common_types::SIncomingCommandGlobalServices * _services ){
+static Json::Value getPlayerStatus( common_types::SIncomingCommandServices * _services ){
 
     // TODO: binary code of player in "PlayerAgent" bin
 
@@ -145,6 +126,36 @@ static Json::Value getPlayerStatus( common_types::SIncomingCommandGlobalServices
 
     return playerStatus;
 }
+
+#include <jsoncpp/json/writer.h>
+
+bool CommandPing::exec(){
+
+    // status
+    Json::Value status;
+    status["analyze_events"] = getAnalyzeEvents();
+    status["load_status"] = getLoadStatus();
+    status["player_state"] = getPlayerStatus( ((SIncomingCommandServices *)m_services) );
+    status["current_ctx_id"] = OBJREPR_BUS.getCurrentContextId();
+
+    // main message
+    Json::Value response;
+    response["message"] = "pong";
+    response["status"] = status;
+
+    // TODO: remove after protocol refactor (response/body)
+    Json::FastWriter writer;
+    Json::Value root;
+    root["response"] = "success";
+    root["body"] = response;
+    //
+
+    // send
+    sendResponse( writer.write(root) );
+    return true;
+}
+
+
 
 
 

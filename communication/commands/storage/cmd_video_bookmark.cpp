@@ -11,27 +11,50 @@ CommandVideoBookmark::CommandVideoBookmark( SIncomingCommandServices * _services
 
 }
 
+#include <jsoncpp/json/writer.h>
+
 bool CommandVideoBookmark::exec(){
 
-    IRecordingMetadataStore * itf = m_services->storageEngine->getServiceRecordingMetadataStore();
+    IRecordingMetadataStore * itf = ((SIncomingCommandServices *)m_services)->storageEngine->getServiceRecordingMetadataStore();
 
     if( m_write ){
         // TODO: temp
         itf->writeMetadata( m_bookmark );
-        string response = "storage engine :: write bookmark error: " + m_services->storageEngine->getLastError();
+        string response = "storage engine :: write bookmark error: " + ((SIncomingCommandServices *)m_services)->storageEngine->getLastError();
 
-        sendResponse( response, false );
+        // TODO: remove after protocol refactor (response/body)
+        Json::FastWriter writer;
+        Json::Value root;
+        root["response"] = "fail";
+        root["body"] = response;
+        //
+
+        sendResponse( writer.write(root) );
         return false;
     }
     else{
         // TODO: temp
         itf->deleteMetadata( m_bookmark );
-        string response = "storage engine :: delete bookmark error: " + m_services->storageEngine->getLastError();
+        string response = "storage engine :: delete bookmark error: " + ((SIncomingCommandServices *)m_services)->storageEngine->getLastError();
 
-        sendResponse( response, false );
+        // TODO: remove after protocol refactor (response/body)
+        Json::FastWriter writer;
+        Json::Value root;
+        root["response"] = "fail";
+        root["body"] = response;
+        //
+
+        sendResponse( writer.write(root) );
         return false;
     }
 
-    sendResponse( Json::Value(), true );
+    // TODO: remove after protocol refactor (response/body)
+    Json::FastWriter writer;
+    Json::Value root;
+    root["response"] = "success";
+    root["body"] = "";
+    //
+
+    sendResponse( writer.write(root) );
     return true;
 }

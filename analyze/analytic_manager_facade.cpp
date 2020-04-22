@@ -51,8 +51,8 @@ bool AnalyticManagerFacade::init( SInitSettings _settings ){
     m_database = DatabaseManager::getInstance();
 
     DatabaseManager::SInitSettings settings3;
-    settings3.host = CONFIG_PARAMS.MONGO_DB_ADDRESS;
-    settings3.databaseName = CONFIG_PARAMS.MONGO_DB_NAME;
+    settings3.host = CONFIG_PARAMS.baseParams.MONGO_DB_ADDRESS;
+    settings3.databaseName = CONFIG_PARAMS.baseParams.MONGO_DB_NAME;
 
     if( ! m_database->init(settings3) ){
         return false;
@@ -630,8 +630,7 @@ void AnalyticManagerFacade::checkStartResults(){
                     m_settings.serviceLocator.eventNotifier->sendEvent( event );
                 }
 
-                WriteAheadLogger walForEndDump;
-                walForEndDump.closeClientOperation( startFromFuture.first );
+                m_settings.serviceLocator.systemEnvironment->serviceForWriteAheadLogging()->closeClientOperation( startFromFuture.first );
             }
             // start success
             else{

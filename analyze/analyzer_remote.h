@@ -5,7 +5,7 @@
 
 #include <microservice_common/system/process_launcher.h>
 
-#include "video_server_common/communication/protocols/internal_communication_analyzer.pb.h"
+#include "communication/protocols/internal_communication_analyzer.pb.h"
 #include "analyzer_proxy.h"
 
 class AnalyzerRemote : public IAnalyzer, public INetworkObserver, public IProcessObserver
@@ -23,7 +23,7 @@ public:
     const SInitSettings & getSettings() override { return m_settings; }
     const std::string & getLastError() override { return m_lastError; }
 
-    std::vector<SAnalyticEvent> getAccumulatedEvents() override;
+    std::vector<common_types::SAnalyticEvent> getAccumulatedEvents() override;
 
     void setLivePlaying( bool _live ) override;
 

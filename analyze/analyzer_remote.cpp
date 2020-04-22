@@ -106,7 +106,7 @@ bool AnalyzerRemote::start( SInitSettings _settings ){
     args.push_back( "--control-socket=" + PATH_LOCATOR.getAnalyzerControlSocket( _settings.sourceUrl ) );
 
     const std::string program = "video_analyzer";
-    m_processHandle = PROCESS_LAUNCHER.launch(program, args, CONFIG_PARAMS.SYSTEM_CATCH_CHILD_PROCESSES_OUTPUT, false);
+    m_processHandle = PROCESS_LAUNCHER.launch(program, args, CONFIG_PARAMS.baseParams.SYSTEM_CATCH_CHILD_PROCESSES_OUTPUT, false);
     if( ! m_processHandle ){
         return false;
     }
@@ -136,7 +136,7 @@ bool AnalyzerRemote::start( SInitSettings _settings ){
     // send
     const string serializedStr = createStartMessage( _settings );
     PEnvironmentRequest request = m_remoteAnalyzerCommunicator->getRequestInstance();
-    request->sendOutcomingMessage( serializedStr, true );
+    request->setOutcomingMessage( serializedStr );
 
     // process reponse
     const string & response = request->getIncomingMessage();
@@ -177,7 +177,7 @@ void AnalyzerRemote::pause(){
     const string serializedStr = createPauseMessage();
 
     PEnvironmentRequest request = m_remoteAnalyzerCommunicator->getRequestInstance();
-    request->sendOutcomingMessage( serializedStr, true );
+    request->setOutcomingMessage( serializedStr );
 
     // process reponse
     const string & response = request->getIncomingMessage();
@@ -210,7 +210,7 @@ void AnalyzerRemote::resume(){
     const string serializedStr = createResumeMessage();
 
     PEnvironmentRequest request = m_remoteAnalyzerCommunicator->getRequestInstance();
-    request->sendOutcomingMessage( serializedStr, true );
+    request->setOutcomingMessage( serializedStr );
 
     // process reponse
     const string & response = request->getIncomingMessage();
@@ -246,7 +246,7 @@ void AnalyzerRemote::stop(){
     // send
     const string serializedStr = createStopMessage();
     PEnvironmentRequest request = m_remoteAnalyzerCommunicator->getRequestInstance();
-    request->sendOutcomingMessage( serializedStr, true );
+    request->setOutcomingMessage( serializedStr );
 
     // process reponse
     const string & response = request->getIncomingMessage();
@@ -455,7 +455,7 @@ const AnalyzerRemote::SAnalyzeStatus & AnalyzerRemote::getStatus(){
     const string serializedStr = m_protobufAnalyzerOut.SerializeAsString();
 
     PEnvironmentRequest request = m_remoteAnalyzerCommunicator->getRequestInstance();
-    request->sendOutcomingMessage( serializedStr, true );
+    request->setOutcomingMessage( serializedStr );
 
 
     // process reponse
@@ -489,7 +489,7 @@ std::vector<SAnalyticEvent> AnalyzerRemote::getAccumulatedEvents(){
 
         // send
         PEnvironmentRequest request = m_remoteAnalyzerCommunicator->getRequestInstance();
-        request->sendOutcomingMessage( m_constRequestGetAccumEvents, true );
+        request->setOutcomingMessage( m_constRequestGetAccumEvents );
 
         // process reponse
         const string & response = request->getIncomingMessage();

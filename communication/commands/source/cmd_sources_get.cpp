@@ -2,7 +2,7 @@
 #include <boost/format.hpp>
 #include <jsoncpp/json/writer.h>
 
-#include "video_source/source_manager.h"
+#include "datasource/source_manager_facade.h"
 #include "storage/video_recorder.h"
 #include "cmd_sources_get.h"
 
@@ -24,7 +24,7 @@ bool CommandSourcesGet::exec(){
 
     Json::Value array;
 
-    for( PConstVideoRetranslator rtspSource : m_services->sourceManager->getRTSPSources() ){
+    for( PConstVideoRetranslator rtspSource : ((SIncomingCommandServices *)m_services)->sourceManager->getRTSPSources() ){
 
         Json::Value arrElement;
         arrElement["clients_count"] = rtspSource->getState().clientCount;
@@ -51,6 +51,13 @@ bool CommandSourcesGet::exec(){
     Json::Value root;
     root["sources"] = array;
 
-    sendResponse( root, true );
+    // TODO: remove after protocol refactor (response/body)
+    Json::FastWriter writer;
+    Json::Value root2;
+    root2["response"] = "success";
+    root2["body"] = root;
+    //
+
+    sendResponse( writer.write(root2) );
     return true;
 }

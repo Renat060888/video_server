@@ -5,6 +5,7 @@
 #include "common/common_utils.h"
 #include "system/config_reader.h"
 #include "system/objrepr_bus_vs.h"
+#include "system/system_environment_facade_vs.h"
 #include "storage/storage_engine_facade.h"
 #include "analyze/analytic_manager_facade.h"
 #include "cmd_analyze_start.h"
@@ -21,9 +22,11 @@ CommandAnalyzeStart::CommandAnalyzeStart( SIncomingCommandServices * _services )
 
 }
 
+#include <jsoncpp/json/writer.h>
+
 bool CommandAnalyzeStart::exec(){
 
-    if( 0 == (CONFIG_PARAMS.SYSTEM_SERVER_FEATURES & (int16_t)EServerFeatures::ANALYZE) ){
+    if( 0 == (CONFIG_PARAMS.baseParams.SYSTEM_SERVER_FEATURES & (int16_t)EServerFeatures::ANALYZE) ){
         Json::Value jsonResponse;
         jsonResponse["cmd_type"] = "analyze";
         jsonResponse["cmd_name"] = "start";
@@ -32,13 +35,20 @@ bool CommandAnalyzeStart::exec(){
         jsonResponse["processing_id"] = "0";
         jsonResponse["error_msg"] = "this server instance not allows analyze";
 
-        sendResponse( jsonResponse, false );
+        // TODO: remove after protocol refactor (response/body)
+        Json::FastWriter writer;
+        Json::Value root;
+        root["response"] = "fail";
+        root["body"] = jsonResponse;
+        //
+
+        sendResponse( writer.write(root) );
 
         return false;
     }
 
     if( resume ){
-        m_services->analyticManager->resumeAnalyze( m_processingId );
+        ((SIncomingCommandServices *)m_services)->analyticManager->resumeAnalyze( m_processingId );
 
         Json::Value response;
         response["cmd_type"] = "analyze";
@@ -47,7 +57,15 @@ bool CommandAnalyzeStart::exec(){
         response["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::PREPARING );
         response["processing_id"] = m_processingId;
         response["resume_current_session"] = resume;
-        sendResponse( response, true );
+
+        // TODO: remove after protocol refactor (response/body)
+        Json::FastWriter writer;
+        Json::Value root;
+        root["response"] = "success";
+        root["body"] = response;
+        //
+
+        sendResponse( writer.write(root) );
 
         return true;
     }
@@ -83,7 +101,7 @@ bool CommandAnalyzeStart::exec(){
         settings.processingName = m_processingName;
         settings.plugins.push_back( processingPlugin );
 
-        if( ! m_services->analyticManager->startAnalyze(settings) ){
+        if( ! ((SIncomingCommandServices *)m_services)->analyticManager->startAnalyze(settings) ){
             Json::Value jsonResponse;
             jsonResponse["cmd_type"] = "analyze";
             jsonResponse["cmd_name"] = "start";
@@ -91,21 +109,26 @@ bool CommandAnalyzeStart::exec(){
             jsonResponse["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::CRUSHED );
             jsonResponse["processing_id"] = "0";
             jsonResponse["resume_current_session"] = resume;
-            jsonResponse["error_msg"] = m_services->analyticManager->getLastError();
-            sendResponse( jsonResponse, false );
+            jsonResponse["error_msg"] = ((SIncomingCommandServices *)m_services)->analyticManager->getLastError();
+
+            // TODO: remove after protocol refactor (response/body)
+            Json::FastWriter writer;
+            Json::Value root;
+            root["response"] = "fail";
+            root["body"] = jsonResponse;
+            //
+
+            sendResponse( writer.write(root) );
 
             return false;
         }
 
         //
         SWALClientOperation operation;
-        operation.fullText = m_requestFullText;
+        operation.commandFullText = m_requestFullText;
         operation.uniqueKey = settings.processingId;
-        operation.begin = true;
-        operation.type = SWALClientOperation::EOperationType::ANALYZE;
-
-        WriteAheadLogger walForBeginDump;
-        walForBeginDump.openAnalyzeOperation( operation );
+        operation.begin = true;        
+        ((SIncomingCommandServices *)m_services)->systemEnvironment->serviceForWriteAheadLogging()->openOperation( operation );
 
         // TODO: не успевает инициализироваться
     //    const Analyzer::SAnalyzeStatus analyzerStatus = m_services->analyticManager->getAnalyzerStatus( m_sensorId );
@@ -117,7 +140,15 @@ bool CommandAnalyzeStart::exec(){
         response["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::PREPARING );
         response["processing_id"] = settings.processingId;
         response["resume_current_session"] = resume;
-        sendResponse( response, true );
+
+        // TODO: remove after protocol refactor (response/body)
+        Json::FastWriter writer;
+        Json::Value root;
+        root["response"] = "success";
+        root["body"] = response;
+        //
+
+        sendResponse( writer.write(root) );
 
         return true;
     }

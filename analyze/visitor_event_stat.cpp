@@ -1,6 +1,4 @@
 
-#include <uuid/uuid.h>
-
 #include <microservice_common/system/logger.h>
 
 #include "visitor_event_stat.h"
@@ -13,17 +11,6 @@
 
 using namespace std;
 using namespace common_types;
-
-static string generateUniqueId(){
-
-    uuid_t id;
-    uuid_generate( id );
-
-    char uuid_str[37];
-    uuid_unparse_lower( id, uuid_str );
-
-    return string( uuid_str );
-}
 
 VisitorEventStat::VisitorEventStat()
 {

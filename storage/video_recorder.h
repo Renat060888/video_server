@@ -85,9 +85,9 @@ public:
 };
 
 // TODO: move to StorageEngine
-class VideoRecorder : public ISourceObserver
+class VideoRecorder : public common_types::ISourceObserver
 {
-    using TFutureStartResult = std::pair<TArchivingId, bool>;
+    using TFutureStartResult = std::pair<common_types::TArchivingId, bool>;
 public:
     struct SServiceLocator {
         SServiceLocator()
@@ -108,6 +108,7 @@ public:
         common_types::ISourceRetranslation * videoRetranslator;
         common_types::IInternalCommunication * internalCommunication;
         common_types::IEventNotifier * eventNotifier;
+        SystemEnvironmentFacadeVS * systemEnvironment;
     };
 
     VideoRecorder();
@@ -130,7 +131,7 @@ private:
 
     void threadArchivesMaintenance();
 
-    void setCrutchesForArchiver( SVideoSource & _source );
+    void setCrutchesForArchiver( common_types::SVideoSource & _source );
 
     TFutureStartResult asyncRecordingStart( const common_types::TArchivingId & _archId, common_types::SVideoSource sourceCopy );
     bool launchRecord( const common_types::TArchivingId & _archId, const common_types::SVideoSource & _source );

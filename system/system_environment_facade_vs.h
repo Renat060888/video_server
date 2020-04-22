@@ -10,8 +10,9 @@ class SystemEnvironmentFacadeVS : public SystemEnvironmentFacade
 public:
     struct SInitSettings : SystemEnvironmentFacade::SInitSettings {
         SInitSettings()
+            : registerInGdm(false)
         {}
-
+        bool registerInGdm;
     };
 
     struct SState {

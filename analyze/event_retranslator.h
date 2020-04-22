@@ -21,7 +21,7 @@ public:
 
     EventRetranslator();
 
-    virtual void retranslateEvent( const SEvent & _event ) override;
+    virtual void retranslateEvent( const common_types::SEvent & _event ) override;
 
 
 private:

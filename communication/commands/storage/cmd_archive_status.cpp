@@ -1,7 +1,6 @@
 
 #include "cmd_archive_status.h"
 #include "storage/video_recorder.h"
-#include "video_server_common/common/common_utils_specific.h"
 
 using namespace std;
 using namespace common_types;
@@ -14,6 +13,8 @@ CommandArchiveStatus::CommandArchiveStatus( SIncomingCommandServices * _services
 
 }
 
+#include <jsoncpp/json/writer.h>
+
 bool CommandArchiveStatus::exec(){
 
     Json::Value response;
@@ -22,7 +23,7 @@ bool CommandArchiveStatus::exec(){
     // one archiver
     if( m_archivingId != ALL_ARCHIVINGS ){
 
-        ArchiveCreatorProxy::SCurrentState status = m_services->videoRecorder->getArchiverState( m_archivingId );
+        ArchiveCreatorProxy::SCurrentState status = ((SIncomingCommandServices *)m_services)->videoRecorder->getArchiverState( m_archivingId );
 
         Json::Value statusRecord;
         statusRecord["sensor_id"] = (unsigned long long)status.initSettings->sensorId;
@@ -34,7 +35,7 @@ bool CommandArchiveStatus::exec(){
     }
     // all archivers
     else{
-        for( const ArchiveCreatorProxy::SCurrentState & status : m_services->videoRecorder->getArchiverStates() ){
+        for( const ArchiveCreatorProxy::SCurrentState & status : ((SIncomingCommandServices *)m_services)->videoRecorder->getArchiverStates() ){
 
             Json::Value statusRecord;
             statusRecord["sensor_id"] = (unsigned long long)status.initSettings->sensorId;
@@ -47,7 +48,14 @@ bool CommandArchiveStatus::exec(){
     }
 
     response["archivers_status"] = statusesRecords;
-    sendResponse( response, true );
 
+    // TODO: remove after protocol refactor (response/body)
+    Json::FastWriter writer;
+    Json::Value root;
+    root["response"] = "success";
+    root["body"] = response;
+    //
+
+    sendResponse( writer.write(root) );
     return true;
 }

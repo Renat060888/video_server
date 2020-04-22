@@ -1,5 +1,5 @@
 
-#include "video_source/source_manager.h"
+#include "datasource/source_manager_facade.h"
 #include "cmd_outgoing_analyze_event.h"
 
 using namespace std;
@@ -19,6 +19,6 @@ bool CommandOutgoingAnalyzeEvent::exec(){
 
 
 
-    m_request->sendOutcomingMessage( m_outcomingMsg, true );
+    m_request->setOutcomingMessage( m_outcomingMsg );
     return true;
 }

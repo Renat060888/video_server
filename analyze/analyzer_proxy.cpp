@@ -2,6 +2,7 @@
 #include "analyzer_proxy.h"
 
 using namespace std;
+using namespace common_types;
 
 AnalyzerProxy::AnalyzerProxy( IAnalyzer * _impl )
     : m_impl(_impl)

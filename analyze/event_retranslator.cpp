@@ -36,7 +36,7 @@ void EventRetranslator::retranslateEvent( const SEvent & _event ){
             const string msg = messageDistillation( ae->eventMessage );
 
             PEnvironmentRequest request = sink.network->getRequestInstance();
-            request->sendOutcomingMessage( msg, true );
+            request->setOutcomingMessage( msg );
         }
     }
     // create new sink

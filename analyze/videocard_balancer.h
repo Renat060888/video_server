@@ -36,8 +36,8 @@ public:
     const std::string & getLastError(){ return m_lastError; }
 
     void getVideocard( common_types::TProcessingId _procId,
-                       SVideoResolution _res,
-                       TProfileId _profileId,
+                       common_types::SVideoResolution _res,
+                       common_types::TProfileId _profileId,
                        unsigned int & _videocardIdx,
                        void * & _dpfProcessorPtr );
     void returnVideocard( common_types::TProcessingId _procId );

@@ -1,0 +1,205 @@
+syntax = "proto2";
+package video_server_protocol;
+
+// hand-made RPC :)
+
+// Analyzer-Proxy (video server process) <-> Analyzer-Real (separate process)
+
+// ----------------------------------------------------------------------------------
+// PAYLOAD-TYPEDEFS
+// ----------------------------------------------------------------------------------
+enum EAnalyzeState {
+    AS_UNAVAILABLE = 0;
+    AS_PREPARING = 1;
+    AS_READY = 2;
+    AS_ACTIVE = 3;
+    AS_CRUSHED = 4;
+    AS_UNDEFINED = 5;
+};
+
+message ContainerDpfObjreprMap {    
+	required string dpf_label = 1;
+	required uint64 objrepr_classinfo_id = 2;
+}
+
+
+message ContainerAnalyticEvent {    
+	required uint64 sensor_id = 1;
+	required string event_message = 2;
+	required string plugin_name = 3;
+	required string plugin_type = 4;
+	required string processing_id = 5;
+}
+
+message ContainerAnalyzeStatus {    
+	required uint64 sensor_id = 1;
+	required EAnalyzeState state = 2;	
+	required string processing_id = 3;
+	required string processing_name = 4;
+	required uint64 profile_id = 5;
+}
+
+message FilterPluginParam {    
+	required string key = 1;
+	required string val = 2;	
+}
+
+message FilterPluginMetadata {    
+	required string plugin_static_name = 1;
+	required string gstreamer_element_name = 2;
+	repeated FilterPluginParam params = 3;
+}
+
+message ContainerInitSettings {
+	required uint64 sensor_id = 1;
+	required uint64 profile_id = 2;
+	required string source_url = 3;   
+	required string processing_id = 4;   
+	required string processing_name = 5;   
+	repeated ContainerDpfObjreprMap dpf_objrepr_map = 6;
+	required string intervideosink_channel_name = 7;   
+	required string shm_rtp_stream_caps = 8;
+	required string shm_rtp_stream_encoding = 9;
+	repeated FilterPluginMetadata plugins = 10;
+	required string VideoReceiverRtpPayloadSocket = 11; // temp
+	required int32 processing_flags = 12;
+}
+
+// ----------------------------------------------------------------------------------
+// ROUTE-TYPEDEFS
+// ----------------------------------------------------------------------------------
+enum ESyncCommandType {
+	SCT_START = 0;
+	SCT_PAUSE = 1;
+	SCT_RESUME = 2;
+    SCT_STOP = 3;
+    SCT_GET_ACCUMULATED_EVENTS = 4;
+    SCT_GET_STATUS = 5; 
+    SCT_GET_SETTINGS = 6;
+    SCT_GET_LAST_ERROR = 7;
+    SCT_UNDEFINED = 8;
+}
+
+message MessageModuleUniqueId {
+	required int32 ip_octets = 1;
+	required int32 pid = 2;
+}
+
+message MessageHeader {    
+    required MessageModuleUniqueId id = 1;
+    required string module_name = 2;
+    optional string last_error = 3;   
+}
+
+// ----------------------------------------------------------------------------------
+// ANALYZER-PROXY REQUESTS
+// ----------------------------------------------------------------------------------
+message MessageAnalyzerProxy {
+	required MessageHeader header = 1;
+	required ESyncCommandType msg_type = 2;
+	
+	optional MessageRequestStart msg_start = 3;
+	optional MessageRequestPause msg_pause = 4;
+	optional MessageRequestResume msg_resume = 5;
+	optional MessageRequestStop msg_stop = 6;
+	optional MessageRequestGetStatus msg_get_status = 7;
+	optional MessageRequestGetSettings msg_get_settings = 8;
+	optional MessageRequestGetLastError msg_get_last_error = 9;
+}
+
+message MessageRequestStart {
+	required ContainerInitSettings settings = 1;  
+}
+
+message MessageRequestPause {	
+	// void
+}
+
+message MessageRequestResume {	
+	// void
+}
+
+message MessageRequestStop {	
+	// void
+}
+
+message MessageRequestGetStatus {
+	// void
+}
+
+message MessageRequestGetSettings {
+	// void
+}
+
+message MessageRequestGetLastError {
+	// void
+}
+
+// ----------------------------------------------------------------------------------
+// ANALYZER-REAL RESPONSES
+// ----------------------------------------------------------------------------------
+message MessageAnalyzerReal {
+	required MessageHeader header = 1;
+	required ESyncCommandType msg_type = 2;	
+	
+	optional MessageResponseStart msg_start = 4;
+	optional MessageResponsePause msg_pause = 5;
+	optional MessageResponseResume msg_resume = 6;
+	optional MessageResponseStop msg_stop = 7;
+	optional MessageResponseGetStatus msg_get_status = 8;
+	optional MessageResponseGetSettings msg_get_settings = 9;
+	optional MessageResponseGetLastError msg_get_last_error = 10;
+	optional MessageResponseAnalyticEvent msg_get_accum_events = 11;
+}
+
+message MessageResponseStart {
+	required bool success = 1;
+}
+
+message MessageResponsePause {	
+	// void
+}
+
+message MessageResponseResume {	
+	// void
+}
+
+
+message MessageResponseStop {	
+	// void
+}
+
+message MessageResponseGetStatus {
+	required ContainerAnalyzeStatus status = 1;
+}
+
+message MessageResponseGetSettings {
+	required ContainerInitSettings settings = 1;
+}
+
+message MessageResponseGetLastError {
+	required string message = 1;
+}
+
+message MessageResponseAnalyticEvent {
+	repeated ContainerAnalyticEvent events = 1;
+}
+
+// ----------------------------------------------------------------------------------
+// MAIN 
+// ----------------------------------------------------------------------------------
+enum EWho {
+	W_ANALYZER_PROXY = 0;
+    W_ANALYZER_REAL = 1;    
+    W_UNDEFINED = 2;
+}
+
+message ProtobufInternalCommunicateAnalyzer {
+    required EWho sender = 1;
+        
+    optional MessageAnalyzerProxy msg_proxy = 2;
+    optional MessageAnalyzerReal msg_real = 3;    
+}
+
+
+

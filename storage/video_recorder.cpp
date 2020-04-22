@@ -4,7 +4,8 @@
 
 #include "common/common_utils.h"
 #include "system/config_reader.h"
-#include "system/objrepr_bus_vs.h".h"
+#include "system/objrepr_bus_vs.h"
+#include "system/system_environment_facade_vs.h"
 #include "archive_creator_remote.h"
 #include "archive_creator.h"
 #include "video_recorder.h"
@@ -186,8 +187,7 @@ void VideoRecorder::recordingStartFuturesMaintenance(){
                     m_settings.eventNotifier->sendEvent( event );
                 }
 
-                WriteAheadLogger walForDump;
-                walForDump.closeClientOperation( startFromFuture.first );
+                m_settings.systemEnvironment->serviceForWriteAheadLogging()->closeClientOperation( startFromFuture.first );
             }
             // start success
             else{
@@ -801,8 +801,8 @@ void VideoRecorder::reconnectLostedSources(){
 
         SLostedSource & lostedSource = valuePair.second;
 
-        if( lostedSource.connectRetries <= CONFIG_PARAMS.SYSTEM_CONNECT_RETRIES &&
-            (common_utils::getCurrentTimeSec() - lostedSource.lostedAtTimeSec) > CONFIG_PARAMS.SYSTEM_CONNECT_RETRY_PERIOD_SEC ){
+        if( lostedSource.connectRetries <= CONFIG_PARAMS.baseParams.SYSTEM_CONNECT_RETRIES &&
+            (common_utils::getCurrentTimeSec() - lostedSource.lostedAtTimeSec) > CONFIG_PARAMS.baseParams.SYSTEM_CONNECT_RETRY_PERIOD_SEC ){
 
             VS_LOG_INFO << "try reconnect to source: " << lostedSource.url
                      << endl;

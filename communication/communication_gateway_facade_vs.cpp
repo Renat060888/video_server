@@ -3,6 +3,7 @@
 #include <microservice_common/communication/amqp_client_c.h>
 
 #include "system/config_reader.h"
+#include "system/objrepr_bus_vs.h"
 #include "system/path_locator.h"
 #include "command_factory.h"
 #include "async_notifier.h"
@@ -23,6 +24,7 @@ CommunicationGatewayFacadeVS::~CommunicationGatewayFacadeVS(){
 
 bool CommunicationGatewayFacadeVS::init( const SInitSettings & _settings ){
 
+    // initial connections in base class
     SAmqpRouteParameters initialRoute;
     initialRoute.predatorExchangePointName = "video_server_dx";
     initialRoute.predatorQueueName = "video_server_q_mailbox";
@@ -36,17 +38,18 @@ bool CommunicationGatewayFacadeVS::init( const SInitSettings & _settings ){
     m_settings.paramsForInitialAmqp.port = CONFIG_PARAMS.baseParams.COMMUNICATION_AMQP_SERVER_PORT;
     m_settings.paramsForInitialAmqp.login = CONFIG_PARAMS.baseParams.COMMUNICATION_AMQP_LOGIN;
     m_settings.paramsForInitialAmqp.pass = CONFIG_PARAMS.baseParams.COMMUNICATION_AMQP_PASS;
+    m_settings.paramsForInitialObjrepr.enable = CONFIG_PARAMS.baseParams.COMMUNICATION_OBJREPR_SERVICE_BUS_ENABLE;
+    m_settings.paramsForInitialObjrepr.serverMirrorIdInContext = OBJREPR_BUS.getVideoServerObjreprMirrorId();
     m_settings.specParams.factory = new CommandFactory( m_settings.services );
 
     if( ! CommunicationGatewayFacade::init(m_settings) ){
         return false;
     }
 
-    return true;
-}
+    // get some of conns
+    m_asyncNotifierNetworkClient = CommunicationGatewayFacade::getInitialObjreprConnection();
 
-IExternalCommunication * CommunicationGatewayFacadeVS::serviceForExternalCommunication(){
-    return this;
+    return true;
 }
 
 IInternalCommunication * CommunicationGatewayFacadeVS::serviceForInternalCommunication(){
@@ -78,6 +81,11 @@ PNetworkClient CommunicationGatewayFacadeVS::getSourceCommunicator( std::string 
 
 PNetworkClient CommunicationGatewayFacadeVS::getArchiveCommunicator( std::string _clientName ){
     assert( false && "archiver communicate with video-receiver via 'NetworkSplitter'" );
+    return nullptr;
+}
+
+PNetworkClient CommunicationGatewayFacadeVS::getServiceCommunicator(){
+    assert( false && "TODO: what for ? (previous used for: message transmitter, along hearbeats)" );
     return nullptr;
 }
 

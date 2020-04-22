@@ -53,7 +53,7 @@ private:
 
     virtual void writeEvent( const common_types::SEvent & _event ) override;
     virtual void deleteEvent( const common_types::SEvent & _event ) override;
-    virtual SEventFromStorage readEvents( const common_types::SAnalyticFilter & _filter ) override;
+    virtual common_types::SEventFromStorage readEvents( const common_types::SAnalyticFilter & _filter ) override;
 
     virtual void writeMetadata( const common_types::SMetadata & _metadata ) override;
     virtual void deleteMetadata( const common_types::SMetadata & _metadata ) override;

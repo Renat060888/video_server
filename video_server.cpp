@@ -2,7 +2,6 @@
 #include <microservice_common/common/ms_common_utils.h>
 #include <microservice_common/system/logger.h>
 #include <microservice_common/system/process_launcher.h>
-#include <microservice_common/system/wal.h>
 #include <microservice_common/system/system_monitor.h>
 
 #include "system/path_locator.h"
@@ -29,13 +28,16 @@ VideoServer::VideoServer()
 
     // II data store
     m_storageEngine = new StorageEngineFacade();
+    m_videoRecorder = new VideoRecorder();
 
     // III data analyze
     m_analyticManager = new AnalyticManagerFacade();
 
     // IV communication between actors
+    m_commandServices.analyticManager = m_analyticManager;
     m_commandServices.sourceManager = m_sourceManager;
     m_commandServices.storageEngine = m_storageEngine;
+    m_commandServices.videoRecorder = m_videoRecorder;
     m_commandServices.systemEnvironment = m_systemEnvironment;
     m_commandServices.signalShutdownServer = std::bind( & VideoServer::shutdown, this );
 
@@ -61,6 +63,7 @@ bool VideoServer::init( const SInitSettings & _settings ){
     settings0.databaseName = CONFIG_PARAMS.baseParams.MONGO_DB_NAME;
     settings0.restoreSystemAfterInterrupt = CONFIG_PARAMS.baseParams.SYSTEM_RESTORE_INTERRUPTED_SESSION;
     settings0.uniqueLockFileFullPath = PATH_LOCATOR.getUniqueLockFile();
+    settings0.registerInGdm = true;
     if( ! m_systemEnvironment->init(settings0) ){
         return false;
     }
@@ -74,16 +77,38 @@ bool VideoServer::init( const SInitSettings & _settings ){
         return false;
     }
 
-    SourceManagerFacade::SInitSettings settings2;
-    settings2.services.internalCommunication = m_communicateGateway->serviceForInternalCommunication();
-    settings2.services.externalCommunication = m_communicateGateway->serviceForExternalCommunication();
-    if( ! m_sourceManager->init(settings2) ){
+    SourceManagerFacade::SInitSettings settings4;
+    settings4.serviceLocator.internalCommunication = m_communicateGateway->serviceForInternalCommunication();
+    settings4.serviceLocator.systemEnvironment = m_systemEnvironment;
+    if( ! m_sourceManager->init(settings4) ){
         return false;
     }
 
-    StorageEngineFacade::SInitSettings settings3;
-    settings3.services.ObjectListeningService = m_sourceManager->getServiceOfObjectListening();
-    if( ! m_storageEngine->init(settings3) ){
+    StorageEngineFacade::SInitSettings settings;
+    settings.serviceLocator.communicationProvider = m_communicateGateway->serviceForInternalCommunication();
+    settings.serviceLocator.videoSources = m_sourceManager->getServiceOfSourceProvider();
+    if( ! m_storageEngine->init(settings) ){
+        return false;
+    }
+
+    VideoRecorder::SInitSettings settings2;
+    settings2.recordingMetadataStore = m_storageEngine->getServiceRecordingMetadataStore();
+    settings2.videoSourcesProvider = m_sourceManager->getServiceOfSourceProvider();
+    settings2.videoRetranslator = m_sourceManager->getServiceOfSourceRetranslation();
+    settings2.internalCommunication = m_communicateGateway->serviceForInternalCommunication();
+    settings2.eventNotifier = m_communicateGateway->getServiceOfEventNotifier();
+    if( ! m_videoRecorder->init(settings2) ){
+        return false;
+    }
+
+    AnalyticManagerFacade::SInitSettings settings3;
+    settings3.serviceLocator.eventStore = m_storageEngine->getServiceOfEventStore();
+    settings3.serviceLocator.eventNotifier = m_communicateGateway->getServiceOfEventNotifier();
+    settings3.serviceLocator.eventProcessor = m_storageEngine->getServiceEventProcessor();
+    settings3.serviceLocator.internalCommunication = m_communicateGateway->serviceForInternalCommunication();
+    settings3.serviceLocator.videoSources = m_sourceManager->getServiceOfSourceProvider();
+    settings3.serviceLocator.systemEnvironment = m_systemEnvironment;
+    if( ! m_analyticManager->init(settings3) ){
         return false;
     }
 
@@ -150,6 +175,7 @@ void VideoServer::shutdown(){
     m_analyticManager->shutdown();
     m_sourceManager->shutdown();
     m_storageEngine->shutdown();
+    m_videoRecorder->shutdown();
 
     delete m_communicateGateway;
     m_communicateGateway = nullptr;
@@ -157,6 +183,8 @@ void VideoServer::shutdown(){
     m_analyticManager = nullptr;
     delete m_storageEngine;
     m_storageEngine = nullptr;
+    delete m_videoRecorder;
+    m_videoRecorder = nullptr;
     delete m_sourceManager;
     m_sourceManager = nullptr;
     delete m_systemEnvironment;

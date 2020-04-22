@@ -15,16 +15,13 @@ QMAKE_CXXFLAGS += -Wno-unused-variable
 
 # TODO: add defines to logger, system monitor, restbed webserver, database, etc...
 DEFINES += \
-    SWITCH_LOGGER_SIMPLE \
-#    SWITCH_LOGGER_ASTRA \
-#    OBJREPR_LIBRARY_EXIST \
+#    SWITCH_LOGGER_SIMPLE \
+    SWITCH_LOGGER_ASTRA \
+    OBJREPR_LIBRARY_EXIST \
     CURRENT_VERSION \
     SEPARATE_SINGLE_SOURCE \
     REMOTE_PROCESSING \
     SPLINES_DO_NOT_USE_GENERIC_CONTAINER \
-#    ENABLE_CONF_DETECTOR_SERVICE \
-#    DEBIAN_9 \
-#    ASTRA_15 \
 
 # NOTE: paths for dev environment ( all projects sources in one dir )
 INCLUDEPATH += \
@@ -41,6 +38,8 @@ LIBS += \
     -lboost_system \
     -lboost_filesystem \
     -lboost_program_options \ # TODO: wtf?
+    -lprotobuf \
+    -lgstrtspserver-1.0 \
     -ljsoncpp \
     -lmicroservice_common \
 
@@ -101,7 +100,19 @@ SOURCES += \
     analyze/visitor_event_stat.cpp \
     analyze/analyzer_proxy.cpp \
     analyze/analyzer_remote.cpp \
-    analyze/analyzer.cpp
+    analyze/analyzer.cpp \
+    communication/protocols/internal_communication_analyzer.pb.cpp \
+    analyze/player_dispatcher.cpp \
+    analyze/player_mirror.cpp \
+    datasource/video_retranslator.cpp \
+    datasource/video_source_proxy.cpp \
+    datasource/video_source_remote.cpp \
+    datasource/video_source_remote2.cpp \
+    datasource/video_source.cpp \
+    datasource/rtsp_tester.cpp \
+    system/pipeline_monitor.cpp \
+    communication/sync_notifier.cpp \
+    common/common_types.cpp
 
 HEADERS += \
     common/common_types.h \
@@ -161,4 +172,15 @@ HEADERS += \
     analyze/visitor_event_stat.h \
     analyze/analyzer_proxy.h \
     analyze/analyzer_remote.h \
-    analyze/analyzer.h
+    analyze/analyzer.h \
+    communication/protocols/internal_communication_analyzer.pb.h \
+    analyze/player_dispatcher.h \
+    analyze/player_mirror.h \
+    datasource/video_retranslator.h \
+    datasource/video_source_proxy.h \
+    datasource/video_source_remote.h \
+    datasource/video_source_remote2.h \
+    datasource/video_source.h \
+    datasource/rtsp_tester.h \
+    system/pipeline_monitor.h \
+    communication/sync_notifier.h

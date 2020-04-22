@@ -5,6 +5,7 @@
 #include "archive_creator_proxy.h"
 
 using namespace std;
+using namespace common_types;
 
 static constexpr const char * PLAYLIST_CLOSING_TAG = "#EXT-X-ENDLIST";
 static constexpr const char * PRINT_HEADER = "ArchiverItf:";

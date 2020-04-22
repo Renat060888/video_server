@@ -334,12 +334,12 @@ void ArchiveCreatorLocal::tryToReconnect(){
     VS_LOG_WARN << "may be lost signal from [" << m_settings.sourceUrl << "]. Retry to connect after [" << reconnectAfterSec << "] seconds" << endl;
     gst_element_set_state( GST_ELEMENT( m_gstPipeline ), GST_STATE_READY );
 
-    this_thread::sleep_for( chrono::seconds( CONFIG_PARAMS.SYSTEM_CONNECT_RETRY_PERIOD_SEC / 2 ) );
+    this_thread::sleep_for( chrono::seconds( CONFIG_PARAMS.baseParams.SYSTEM_CONNECT_RETRY_PERIOD_SEC / 2 ) );
 
 //    gst_element_set_state( GST_ELEMENT( m_gstPipeline ), GST_STATE_PAUSED );
 
     VS_LOG_WARN << "retry to connect" << endl;
-    this_thread::sleep_for( chrono::seconds( CONFIG_PARAMS.SYSTEM_CONNECT_RETRY_PERIOD_SEC / 2 ) );
+    this_thread::sleep_for( chrono::seconds( CONFIG_PARAMS.baseParams.SYSTEM_CONNECT_RETRY_PERIOD_SEC / 2 ) );
 
     gst_element_set_state( GST_ELEMENT( m_gstPipeline ), GST_STATE_PLAYING );
 }

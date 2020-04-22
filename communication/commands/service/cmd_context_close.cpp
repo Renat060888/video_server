@@ -1,7 +1,7 @@
 
 #include "cmd_context_close.h"
-#include "storage/storage_engine.h"
-#include "video_server_common/system/system_environment.h"
+#include "storage/storage_engine_facade.h"
+#include "system/system_environment_facade_vs.h"
 
 using namespace std;
 using namespace common_types;
@@ -14,13 +14,13 @@ CommandContextClose::CommandContextClose( SIncomingCommandServices * _services )
 
 bool CommandContextClose::exec(){
 
-    if( ! m_services->systemEnvironment->closeContext() ){
-        string response = "context closing error: " + m_services->systemEnvironment->getLastError();
+    if( ! ((SIncomingCommandServices *)m_services)->systemEnvironment->serviceForContextControl()->closeContext() ){
+        string response = "context closing error: " + ((SIncomingCommandServices *)m_services)->systemEnvironment->getState().lastError;
 
-        sendResponse( response, false );
+        sendResponse( response );
         return false;
     }
 
-    sendResponse( Json::Value(), true );
+    sendResponse( string() );
     return true;
 }

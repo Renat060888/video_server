@@ -10,13 +10,22 @@ CommandShutdownServer::CommandShutdownServer( SIncomingCommandServices * _servic
 
 }
 
+#include <jsoncpp/json/writer.h>
+
 bool CommandShutdownServer::exec(){
 
     Json::Value root;
     root["message"] = "I'am shutdown, bye bye!";
 
-    sendResponse( root, true );
+    // TODO: remove after protocol refactor (response/body)
+    Json::FastWriter writer;
+    Json::Value root2;
+    root2["response"] = "success";
+    root2["body"] = root;
+    //
 
-    m_services->signalShutdownServer();
+    sendResponse( writer.write(root2) );
+
+    ((SIncomingCommandServices *)m_services)->signalShutdownServer();
     return true;
 }

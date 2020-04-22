@@ -1,11 +1,10 @@
 
-#include "analyze/analytic_manager.h"
+#include "analyze/analytic_manager_facade.h"
+#include "storage/storage_engine_facade.h"
+#include "common/common_utils.h"
+#include "system/config_reader.h"
+#include "system/system_environment_facade_vs.h"
 #include "cmd_analyze_stop.h"
-#include "storage/storage_engine.h"
-#include "video_server_common/common/common_utils.h"
-#include "video_server_common/common/common_utils_specific.h"
-#include "video_server_common/system/config_reader.h"
-#include "system/wal.h"
 
 using namespace std;
 using namespace common_types;
@@ -18,9 +17,11 @@ CommandAnalyzeStop::CommandAnalyzeStop( SIncomingCommandServices * _services )
 
 }
 
+#include <jsoncpp/json/writer.h>
+
 bool CommandAnalyzeStop::exec(){
 
-    if( 0 == (CONFIG_PARAMS.SYSTEM_SERVER_FEATURES & (int16_t)EServerFeatures::ANALYZE) ){
+    if( 0 == (CONFIG_PARAMS.baseParams.SYSTEM_SERVER_FEATURES & (int16_t)EServerFeatures::ANALYZE) ){
         Json::Value jsonResponse;
         jsonResponse["cmd_type"] = "analyze";
         jsonResponse["cmd_name"] = "stop";
@@ -29,29 +30,51 @@ bool CommandAnalyzeStop::exec(){
         jsonResponse["processing_id"] = m_processingId;
         jsonResponse["error_msg"] = "analyze is not available on this video server";
 
-        sendResponse( jsonResponse, false );
+        // TODO: remove after protocol refactor (response/body)
+        Json::FastWriter writer;
+        Json::Value root;
+        root["response"] = "fail";
+        root["body"] = jsonResponse;
+        //
+
+        sendResponse( writer.write(root) );
 
         return false;
     }
 
     if( destroy ){
-        if( ! m_services->analyticManager->stopAnalyze(m_processingId) ){
-            const string response = m_services->analyticManager->getLastError();
-            sendResponse( response, false );
+        if( ! ((SIncomingCommandServices *)m_services)->analyticManager->stopAnalyze(m_processingId) ){
+            const string response = ((SIncomingCommandServices *)m_services)->analyticManager->getLastError();
+
+            // TODO: remove after protocol refactor (response/body)
+            Json::FastWriter writer;
+            Json::Value root;
+            root["response"] = "fail";
+            root["body"] = response;
+            //
+
+            sendResponse( writer.write(root) );
             return false;
         }
 
         //
-        WriteAheadLogger walForEndDump;
-        walForEndDump.closeClientOperation( m_processingId );
+        ((SIncomingCommandServices *)m_services)->systemEnvironment->serviceForWriteAheadLogging()->closeClientOperation( m_processingId );
 
         //
-        m_services->storageEngine->getServiceEventProcessor()->removeEventProcessor( m_processingId );
+        ((SIncomingCommandServices *)m_services)->storageEngine->getServiceEventProcessor()->removeEventProcessor( m_processingId );
     }
     else{
-        if( ! m_services->analyticManager->pauseAnalyze(m_processingId) ){
-            const string response = m_services->analyticManager->getLastError();
-            sendResponse( response, false );
+        if( ! ((SIncomingCommandServices *)m_services)->analyticManager->pauseAnalyze(m_processingId) ){
+            const string response = ((SIncomingCommandServices *)m_services)->analyticManager->getLastError();
+
+            // TODO: remove after protocol refactor (response/body)
+            Json::FastWriter writer;
+            Json::Value root;
+            root["response"] = "fail";
+            root["body"] = response;
+            //
+
+            sendResponse( writer.write(root) );
             return false;
         }
     }
@@ -63,7 +86,15 @@ bool CommandAnalyzeStop::exec(){
     response["sensor_id"] = (unsigned long long)m_sensorId;
     response["processing_id"] = m_processingId;
     response["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::READY );
-    sendResponse( response, true );
+
+    // TODO: remove after protocol refactor (response/body)
+    Json::FastWriter writer;
+    Json::Value root;
+    root["response"] = "success";
+    root["body"] = response;
+    //
+
+    sendResponse( writer.write(root) );
 
     return true;
 }

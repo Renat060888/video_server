@@ -41,6 +41,8 @@ public:
         bool PROCESSING_RETRANSLATE_EVENTS;
         bool PROCESSING_STORE_EVENTS;
         double PROCESSING_FACE_ANALYZER_MAX_DISTANCE;
+
+        std::map<std::string, std::string> DPF_LABEL_TO_OBJREPR_CLASSINFO;
     };
 
     static ConfigReader & singleton(){

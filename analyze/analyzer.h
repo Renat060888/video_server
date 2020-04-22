@@ -29,8 +29,8 @@ public:
     const SInitSettings & getSettings() override { return m_settings; }
     const std::string & getLastError() override { return m_lastError; }
 
-    std::vector<SAnalyticEvent> getAccumulatedEvents() override;
-    std::vector<SAnalyticEvent> getAccumulatedInstantEvents() override;
+    std::vector<common_types::SAnalyticEvent> getAccumulatedEvents() override;
+    std::vector<common_types::SAnalyticEvent> getAccumulatedInstantEvents() override;
 
     void setLivePlaying( bool _live ) override;
 
@@ -46,8 +46,8 @@ private:
 
 
     // data
-    std::vector<SAnalyticEvent> m_accumulatedEvents;
-    std::vector<SAnalyticEvent> m_accumulatedInstantEvents;
+    std::vector<common_types::SAnalyticEvent> m_accumulatedEvents;
+    std::vector<common_types::SAnalyticEvent> m_accumulatedInstantEvents;
     std::string m_lastError;
     SInitSettings m_settings;
     SAnalyzeStatus m_status;

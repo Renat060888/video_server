@@ -2,6 +2,7 @@
 #define COMMON_TYPES_H
 
 #include <functional>
+#include <map>
 
 #include <microservice_common/common/ms_common_types.h>
 #include <microservice_common/communication/network_interface.h>
@@ -14,7 +15,7 @@ class StorageEngineFacade;
 class AnalyticManagerFacade;
 class SystemEnvironmentFacadeVS;
 class CommunicationGatewayFacadeVS;
-
+class VideoRecorder;
 
 namespace common_types {
 
@@ -216,6 +217,18 @@ struct SVideoResolution {
     int height;
 };
 
+struct SLostedSource {
+    std::string url;
+    int32_t connectRetries;
+    int64_t lostedAtTimeSec;
+};
+
+struct SAnalyzeProfile {
+    std::string name;
+    uint64_t id;
+    std::string profilePath;
+    std::map<std::string, uint64_t> processingNameToObjreprClassinfo;
+};
 
 // ---------------------------------------------------------------------------
 // exchange ADT ( component <-> store, component <-> network, etc... )
@@ -568,6 +581,9 @@ struct SIncomingCommandServices : SIncomingCommandGlobalServices {
 
     // for outgoing commands
     PNetworkClient networkClient;
+
+    // TODO: put into StorageEngineFacade
+    VideoRecorder * videoRecorder;
 };
 
 }

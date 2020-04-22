@@ -49,8 +49,8 @@ bool StorageEngineFacade::init( SInitSettings _settings ){
     DatabaseManager * database = DatabaseManager::getInstance();
 
     DatabaseManager::SInitSettings settings;
-    settings.host = CONFIG_PARAMS.MONGO_DB_ADDRESS;
-    settings.databaseName = CONFIG_PARAMS.MONGO_DB_NAME;
+    settings.host = CONFIG_PARAMS.baseParams.MONGO_DB_ADDRESS;
+    settings.databaseName = CONFIG_PARAMS.baseParams.MONGO_DB_NAME;
 
     if( ! database->init(settings) ){
         return false;

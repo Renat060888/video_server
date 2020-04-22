@@ -10,12 +10,12 @@
 #include "system/system_environment_facade_vs.h"
 #include "communication/communication_gateway_facade_vs.h"
 #include "storage/storage_engine_facade.h"
+#include "storage/video_recorder.h"
 #include "datasource/source_manager_facade.h"
+#include "analyze/analytic_manager_facade.h"
 
 class VideoServer
 {
-    static void callbackUnixInterruptSignal();
-    static boost::signals2::signal<void()> m_unixInterruptSignal;
 public:
     struct SInitSettings {
 
@@ -25,6 +25,8 @@ public:
         SInitSettings settings;
         std::string lastError;
     };
+
+    static void callbackUnixInterruptSignal();
 
     VideoServer();
     ~VideoServer();
@@ -36,6 +38,8 @@ public:
 
 
 private:
+    static boost::signals2::signal<void()> m_unixInterruptSignal;
+
     void shutdown();
     void shutdownByUnixInterruptSignal();
     void checkForSelfShutdown();
@@ -52,6 +56,9 @@ private:
     StorageEngineFacade * m_storageEngine;
     SourceManagerFacade * m_sourceManager;
     AnalyticManagerFacade * m_analyticManager;
+
+    // TODO: put into StorageEngineFacade
+    VideoRecorder * m_videoRecorder;
 };
 
 #endif // VIDEO_SERVER_H

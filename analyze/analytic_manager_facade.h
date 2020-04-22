@@ -31,8 +31,8 @@ public:
         common_types::IEventProcessor * eventProcessor;
         common_types::IEventRetranslator * eventRetranslator;
         common_types::IInternalCommunication * internalCommunication;
-        common_types::IExternalCommunication * externalCommunication;
         common_types::ISourcesProvider * videoSources;
+        SystemEnvironmentFacadeVS * systemEnvironment;
     };
 
     struct SInitSettings {
@@ -56,7 +56,7 @@ public:
     const std::map<std::string, common_types::SAnalyticEvent> & getLastAnalyzersEvent();
 
     // facade services
-    IObjectsPlayer * getPlayingService();    
+    common_types::IObjectsPlayer * getPlayingService();
 
     void setLivePlaying( bool _live );
 
@@ -71,7 +71,7 @@ private:
     void checkStartResults();
     void updatePlayer();
 
-    std::map<uint64_t, SAnalyzeProfile> getSensorProfiles( common_types::TSensorId _sensorId );
+    std::map<uint64_t, common_types::SAnalyzeProfile> getSensorProfiles( common_types::TSensorId _sensorId );
     std::map<std::string, uint64_t> getDpfObjreprMapping( common_types::TProfileId _profileId );
     std::map<std::string, uint64_t> getDpfObjreprMapping( const std::vector<uint64_t> & _filterObjreprClassinfoId );
 
@@ -102,7 +102,7 @@ private:
     AnalyticsStatisticsClient m_statisticsClient;
     Json::Reader m_jsonReader;
     VideocardBalancer m_videocardBalancer;
-    IObjectsPlayer * m_player;
+    common_types::IObjectsPlayer * m_player;
     DatabaseManager * m_database;
     PlayerDispatcher m_playerDispatcher;    
 };

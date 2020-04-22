@@ -32,7 +32,7 @@ static bool initSingletons( int _argc, char ** _argv, char ** _env ){
     // configs
     ConfigReader::SIninSettings settings3;
     settings3.commandConvertor = & UNIFIED_COMMAND_CONVERTOR;
-    settings3.mainConfigPath = ARGS_PARSER.getVal(EPlayerArguments::MAIN_CONFIG_PATH);
+    settings3.mainConfigPath = ARGS_PARSER.getVal(EVideoServerArguments::MAIN_CONFIG_PATH);
     settings3.env = _env;
     settings3.projectName = "video_server";
     if( ! CONFIG_READER.init(settings3) ){
@@ -78,10 +78,10 @@ static void parseResponse( const std::string & _msg ){
 }
 
 static bool executeShellCommand(){
-    if( ARGS_PARSER.isKeyExist(EPlayerArguments::SHELL_CMD_START_VIDEO_SERVER) ){
+    if( ARGS_PARSER.isKeyExist(EVideoServerArguments::SHELL_CMD_START_VIDEO_SERVER) ){
 
         // deamonize
-        if( ARGS_PARSER.isKeyExist(EPlayerArguments::AS_DAEMON) ){
+        if( ARGS_PARSER.isKeyExist(EVideoServerArguments::AS_DAEMON) ){
             if( ! Daemonizator::turnIntoDaemon() ){
                 return false;
             }
@@ -97,7 +97,7 @@ static bool executeShellCommand(){
 
             Logger::singleton().initGlobal( settings2 );
 
-            VS_LOG_INFO << "============================ RECORDER AGENT AS DAEMON ========================" << endl;
+            VS_LOG_INFO << "============================ VIDEO SERVER AS DAEMON ========================" << endl;
         }
 
         // launch agent
@@ -112,7 +112,7 @@ static bool executeShellCommand(){
             }
         }
     }
-    else if( ARGS_PARSER.isKeyExist(EPlayerArguments::SHELL_CMD_TO_VIDEO_SERVER) ){
+    else if( ARGS_PARSER.isKeyExist(EVideoServerArguments::SHELL_CMD_TO_VIDEO_SERVER) ){
 
         // reinit logger for client side
         logger_common::SInitSettings settings;
@@ -131,7 +131,7 @@ static bool executeShellCommand(){
         }
 
         // send message to server
-        const string message =  ARGS_PARSER.getVal(EPlayerArguments::SHELL_CMD_TO_VIDEO_SERVER);
+        const string message =  ARGS_PARSER.getVal(EVideoServerArguments::SHELL_CMD_TO_VIDEO_SERVER);
         const string response = shell.makeBlockedRequest( message );
         parseResponse( response );
     }

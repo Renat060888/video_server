@@ -2,6 +2,7 @@
 #include "analytics_statistics_client.h"
 
 using namespace std;
+using namespace common_types;
 
 AnalyticsStatisticsClient::AnalyticsStatisticsClient()
 {
