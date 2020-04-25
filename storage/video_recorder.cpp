@@ -446,6 +446,7 @@ bool VideoRecorder::launchRecord( const TArchivingId & _archId, const SVideoSour
     settings.communicationWithVideoSource = m_settings.videoSourcesProvider->getCommunicatorWithSource( _source.sourceUrl );
     settings.serviceOfSourceProvider = m_settings.videoSourcesProvider;
 
+    // try to start recording
     PArchiveCreatorProxy archiveCreator;
     if( CONFIG_PARAMS.RECORD_ENABLE_REMOTE_ARCHIVER ){
         ArchiveCreatorRemote * remote = new ArchiveCreatorRemote( m_settings.internalCommunication, _source.sourceUrl );
@@ -461,6 +462,7 @@ bool VideoRecorder::launchRecord( const TArchivingId & _archId, const SVideoSour
         return false;
     }
 
+    // add successful archiver to set
     m_muArchiverLock.lock();
     m_archiveCreatorsByArchivingId.insert( {settings.archivingId, archiveCreator} );
     m_archiveCreators.push_back( archiveCreator );

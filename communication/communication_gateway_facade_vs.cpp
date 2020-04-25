@@ -25,10 +25,11 @@ CommunicationGatewayFacadeVS::~CommunicationGatewayFacadeVS(){
 bool CommunicationGatewayFacadeVS::init( const SInitSettings & _settings ){
 
     // initial connections in base class
+    const string serverId = std::to_string( OBJREPR_BUS.getVideoServerObjreprMirrorId() );
     SAmqpRouteParameters initialRoute;
-    initialRoute.predatorExchangePointName = "video_server_dx";
-    initialRoute.predatorQueueName = "video_server_q_mailbox";
-    initialRoute.predatorRoutingKeyName = "video_server_rk";
+    initialRoute.predatorExchangePointName = "video_dx_servers";
+    initialRoute.predatorQueueName = "video_q_server_mailbox_" + serverId;
+    initialRoute.predatorRoutingKeyName = "video_rk_to_server_" + serverId;
 
     m_settings = _settings;
     m_settings.paramsForInitialAmqp.route = initialRoute;

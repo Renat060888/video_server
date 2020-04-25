@@ -524,7 +524,8 @@ bool AnalyticManagerFacade::isAnotherAnalyzerStarting(){
 
 void AnalyticManagerFacade::callbackFromAnalyzer( const SAnalyticEvent & _event ){
 
-    // TODO: ?
+    // TODO: what for this method ? ( for event transfer via pong )
+
     m_muAnalyzers.lock();
 
     m_settings.serviceLocator.eventStore->writeEvent( _event );
@@ -617,7 +618,7 @@ void AnalyticManagerFacade::checkStartResults(){
                     m_settings.serviceLocator.eventNotifier->sendEvent( event );
                 }
                 else{
-                    // error outside analyzer
+                    // problem outside analyzer ( source connection for example )
                     VS_LOG_WARN << PRINT_HEADER << " analyzer's return from std::future was failed: [" << errMsg << "]" << endl;
 
                     const AnalyzerProxy::SInitSettings & startSettings = m_analyzersFailedInFuture.find( startFromFuture.first )->second;
