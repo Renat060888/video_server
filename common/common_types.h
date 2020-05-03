@@ -431,6 +431,15 @@ public:
     virtual void normalizePlayingSpeed() = 0;
 };
 
+class IAccumulatedEventsProvider {
+public:
+    virtual ~IAccumulatedEventsProvider(){}
+
+    virtual void read( std::vector<common_types::SAnalyticEvent> & _events ) = 0;
+    virtual void read( std::vector<common_types::SAnalyzeStateEvent> & _events ) = 0;
+    virtual void read( std::vector<common_types::SArchiverStateEvent> & _events ) = 0;
+};
+
 // communication itf
 class IInternalCommunication {
 public:

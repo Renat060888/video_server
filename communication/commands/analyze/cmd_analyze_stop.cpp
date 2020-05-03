@@ -26,7 +26,7 @@ bool CommandAnalyzeStop::exec(){
         jsonResponse["cmd_type"] = "analyze";
         jsonResponse["cmd_name"] = "stop";
         jsonResponse["sensor_id"] = (unsigned long long)m_sensorId;
-        jsonResponse["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::UNAVAILABLE );
+        jsonResponse["analyze_status"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::UNAVAILABLE );
         jsonResponse["processing_id"] = m_processingId;
         jsonResponse["error_msg"] = "analyze is not available on this video server";
 
@@ -85,7 +85,7 @@ bool CommandAnalyzeStop::exec(){
     response["destroy_current_session"] = destroy;
     response["sensor_id"] = (unsigned long long)m_sensorId;
     response["processing_id"] = m_processingId;
-    response["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::READY );
+    response["analyze_status"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::READY );
 
     // TODO: remove after protocol refactor (response/body)
     Json::FastWriter writer;

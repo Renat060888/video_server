@@ -31,7 +31,7 @@ bool CommandAnalyzeStart::exec(){
         jsonResponse["cmd_type"] = "analyze";
         jsonResponse["cmd_name"] = "start";
         jsonResponse["sensor_id"] = (unsigned long long)m_sensorId;
-        jsonResponse["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::UNAVAILABLE );
+        jsonResponse["analyze_status"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::UNAVAILABLE );
         jsonResponse["processing_id"] = "0";
         jsonResponse["error_msg"] = "this server instance not allows analyze";
 
@@ -54,7 +54,7 @@ bool CommandAnalyzeStart::exec(){
         response["cmd_type"] = "analyze";
         response["cmd_name"] = "start";
         response["sensor_id"] = (unsigned long long)m_sensorId;
-        response["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::PREPARING );
+        response["analyze_status"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::PREPARING );
         response["processing_id"] = m_processingId;
         response["resume_current_session"] = resume;
 
@@ -106,7 +106,7 @@ bool CommandAnalyzeStart::exec(){
             jsonResponse["cmd_type"] = "analyze";
             jsonResponse["cmd_name"] = "start";
             jsonResponse["sensor_id"] = (unsigned long long)m_sensorId;
-            jsonResponse["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::CRUSHED );
+            jsonResponse["analyze_status"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::CRUSHED );
             jsonResponse["processing_id"] = "0";
             jsonResponse["resume_current_session"] = resume;
             jsonResponse["error_msg"] = ((SIncomingCommandServices *)m_services)->analyticManager->getLastError();
@@ -137,7 +137,7 @@ bool CommandAnalyzeStart::exec(){
         response["cmd_type"] = "analyze";
         response["cmd_name"] = "start";
         response["sensor_id"] = (unsigned long long)m_sensorId;
-        response["analyze_state"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::PREPARING );
+        response["analyze_status"] = common_utils::convertAnalyzeStateToStr( EAnalyzeState::PREPARING );
         response["processing_id"] = settings.processingId;
         response["resume_current_session"] = resume;
 

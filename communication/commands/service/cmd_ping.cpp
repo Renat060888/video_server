@@ -4,6 +4,7 @@
 
 #include "system/objrepr_bus_vs.h"
 #include "analyze/analytic_manager_facade.h"
+#include "storage/video_recorder.h"
 #include "common/common_utils.h"
 #include "cmd_ping.h"
 
@@ -19,7 +20,7 @@ CommandPing::CommandPing( SIncomingCommandServices * _services ) :
 
 }
 
-static Json::Value getAnalyzeEvents(){
+static Json::Value getEvents(){
 
     // collect events
     Json::Value analyzeEvents;
@@ -34,7 +35,7 @@ static Json::Value getAnalyzeEvents(){
     return analyzeEvents;
 }
 
-static Json::Value getLoadStatus(){
+static Json::Value getSystemState(){
 
     const SystemMonitor::STotalInfo total = SYSTEM_MONITOR.getTotalSnapshot();
     assert( (total.memory.ramTotalMb - total.memory.ramFreeMb) < total.memory.ramTotalMb );
@@ -69,62 +70,44 @@ static Json::Value getLoadStatus(){
     return loadStatus;
 }
 
-static Json::Value getPlayerStatus( common_types::SIncomingCommandServices * _services ){
+static Json::Value getServerState(){
 
-    // TODO: binary code of player in "PlayerAgent" bin
+    Json::Value serverState;
+    serverState["ctx_id"] = OBJREPR_BUS.getCurrentContextId();
+    serverState["server_objrepr_id"] = (long long)OBJREPR_BUS.getVideoServerObjreprMirrorId();
 
-    Json::Value playerStatus;
+    return serverState;
+}
 
-    IObjectsPlayer * player = _services->analyticManager->getPlayingService();
-    playerStatus["player_status"] = "INITED";
+static Json::Value getArchiversState( SIncomingCommandServices * _services ){
 
-#if 0
-    // TODO: crutch 'char * -> Player::SState *'
-    Player::SState * playerState = ( Player::SState * )player->getState();
-    const DatasourceMixer::SState & mixerState = playerState->mixer->getState();
+    Json::Value archiversStates;
+    for( const ArchiveCreatorProxy::SCurrentState & state : _services->videoRecorder->getArchiverStates() ){
+        Json::Value archiverState;
+        archiverState["sensor_id"] = (long long)state.initSettings->sensorId;
+        archiverState["archiving_id"] = state.initSettings->archivingId;
+        archiverState["archiver_status"] = common_utils::convertArchivingStateToStr( state.state );
 
-    Json::Value playerStatus;
-    playerStatus["current_step_ms"] = (long long)mixerState.globalDataRangeMillisec.first + (playerState->playIterator->getCurrentStep() * mixerState.globalStepUpdateMillisec);
-    playerStatus["total_range_left_ms"] = (long long)mixerState.globalDataRangeMillisec.first;
-    playerStatus["total_range_right_ms"] = (long long)mixerState.globalDataRangeMillisec.second;
-    playerStatus["player_status"] = common_utils::printPlayingStatus( playerState->playingStatus );
-
-    // datasources ranges
-    // NOTE: temp ( because number of empty areas is tremendous )
-    Json::Value array;
-    for( PlayingDatasource * datasrc : mixerState.settings->datasources ){
-        Json::Value datasrcRanges;
-
-        datasrcRanges["sensor_id"] = (long long)datasrc->getState().settings->sensorId;
-
-        PlayingDatasource::SBeacon::SDataBlock * block1 = datasrc->getState().payloadDataRangesInfo.front();
-        PlayingDatasource::SBeacon::SDataBlock * block2 = datasrc->getState().payloadDataRangesInfo.back();
-        datasrcRanges["ranges"].append( (long long)block1->timestampRangeMillisec.first );
-        datasrcRanges["ranges"].append( (long long)block2->timestampRangeMillisec.second );
-
-        array.append( datasrcRanges );
+        archiversStates.append( archiverState );
     }
-    playerStatus["datasrc_set"] = array;
 
-#if 0
-    Json::Value array;
-    for( PlayingDatasource * datasrc : mixerState.settings->datasources ){
-        Json::Value datasrcRanges;
+    return archiversStates;
+}
 
-        datasrcRanges["sensor_id"] = (long long)datasrc->getState().settings->sensorId;
+static Json::Value getAnalyzersState( SIncomingCommandServices * _services ){
 
-        for( PlayingDatasource::SBeacon::SDataBlock * block : datasrc->getState().payloadDataRangesInfo ){
-            datasrcRanges["ranges"].append( (long long)block->timestampRangeMillisec.first );
-            datasrcRanges["ranges"].append( (long long)block->timestampRangeMillisec.second );
-        }
+    Json::Value analyzersStates;
+    for( const AnalyzerProxy::SAnalyzeStatus & state : _services->analyticManager->getAnalyzersStatuses() ){
+        Json::Value analyzerState;
+        analyzerState["sensor_id"] = (long long)state.sensorId;
+        analyzerState["profile_id"] = (long long)state.profileId;
+        analyzerState["processing_id"] = state.processingId;
+        analyzerState["analyzer_status"] = common_utils::convertAnalyzeStateToStr( state.analyzeState );
 
-        array.append( datasrcRanges );
+        analyzersStates.append( analyzerState );
     }
-    playerStatus["datasrc_set"] = array;
-#endif
-#endif
 
-    return playerStatus;
+    return analyzersStates;
 }
 
 #include <jsoncpp/json/writer.h>
@@ -132,26 +115,17 @@ static Json::Value getPlayerStatus( common_types::SIncomingCommandServices * _se
 bool CommandPing::exec(){
 
     // status
-    Json::Value status;
-    status["analyze_events"] = getAnalyzeEvents();
-    status["load_status"] = getLoadStatus();
-    status["player_state"] = getPlayerStatus( ((SIncomingCommandServices *)m_services) );
-    status["current_ctx_id"] = OBJREPR_BUS.getCurrentContextId();
-
-    // main message
-    Json::Value response;
-    response["message"] = "pong";
-    response["status"] = status;
-
-    // TODO: remove after protocol refactor (response/body)
-    Json::FastWriter writer;
-    Json::Value root;
-    root["response"] = "success";
-    root["body"] = response;
-    //
+    Json::Value responseRecord;
+    responseRecord["cmd_name"] = "pong";
+    responseRecord["server_state"] = getServerState();
+    responseRecord["system_state"] = getSystemState();
+    responseRecord["archivers_state"] = getArchiversState( (SIncomingCommandServices *)m_services );
+    responseRecord["analyzers_state"] = getAnalyzersState( (SIncomingCommandServices *)m_services );
+    responseRecord["events"] = getEvents();
 
     // send
-    sendResponse( writer.write(root) );
+    Json::FastWriter writer;
+    sendResponse( writer.write(responseRecord) );
     return true;
 }
 
